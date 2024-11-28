@@ -1,6 +1,7 @@
 package com.cookandroid.candycrush.view;
 
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
 import android.widget.ImageView;
@@ -54,11 +55,9 @@ public class PlayActivity extends AppCompatActivity {
     private void adjustBoardSize(GridLayout board) {
         int screenWidth = getResources().getDisplayMetrics().widthPixels;
 
-        // GridLayout 높이를 XML에서 정의한 비율에 맞게 설정
         int screenHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.7);
         int candySize = Math.min(screenWidth, screenHeight) / gridSize;
 
-        // 캔디 크기를 고정
         ViewGroup.LayoutParams params = board.getLayoutParams();
         params.width = candySize * gridSize;
         params.height = candySize * gridSize;
@@ -71,24 +70,31 @@ public class PlayActivity extends AppCompatActivity {
         board.setColumnCount(gridSize);
 
         int screenWidth = getResources().getDisplayMetrics().widthPixels;
-        int screenHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.7);
-        int candySize = Math.min(screenWidth, screenHeight) / gridSize;
+        int screenHeight = getResources().getDisplayMetrics().heightPixels;
+
+        int cellWidth = screenWidth / gridSize;
 
         for (int row = 0; row < gridSize; row++) {
             for (int col = 0; col < gridSize; col++) {
+                // 캔디 생성
                 ImageView candy = new ImageView(this);
                 int randomCandy = candyResources[random.nextInt(candyResources.length)];
                 candy.setImageResource(randomCandy);
                 candy.setTag(randomCandy);
 
+                // 캔디 비율 유지 및 잘리지 않게 설정
+                candy.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
+                // 레이아웃 파라미터 생성
                 GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-                params.width = candySize; // 캔디 크기 설정
-                params.height = candySize;
-                params.setMargins(2, 2, 2, 2); // 캔디 간격 추가
+                params.width = cellWidth;  // 셀 너비
+                params.rowSpec = GridLayout.spec(row);  // 행 위치
+                params.columnSpec = GridLayout.spec(col);  // 열 위치
+                params.setGravity(Gravity.FILL); // 셀 크기를 완전히 채우도록 설정
                 candy.setLayoutParams(params);
 
-                candy.setScaleType(ImageView.ScaleType.FIT_CENTER); // 비율 유지
-                candyBoard[row][col] = candy; // 캔디 보드 배열에 저장
+                // 캔디 보드에 추가
+                candyBoard[row][col] = candy;
                 board.addView(candy);
 
                 // 스와이프 이벤트 연결

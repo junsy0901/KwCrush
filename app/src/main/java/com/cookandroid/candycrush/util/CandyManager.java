@@ -16,14 +16,7 @@ public class CandyManager {
     }
 
     public void findAndProcessMatches(ImageView[][] candyBoard) {
-        boolean hasMatch;
-
-        do {
-            hasMatch = checkAndRemoveMatches(candyBoard);
-            if (hasMatch) {
-                applyGravity(candyBoard);
-            }
-        } while (hasMatch);
+        resolveMatches(candyBoard);
     }
 
     public void swapCandies(int row1, int col1, int row2, int col2, ImageView[][] candyBoard) {
@@ -44,9 +37,60 @@ public class CandyManager {
 
         candy2.setImageDrawable(candy1.getDrawable());
         candy2.setTag(tag1);
+    }
 
-        // 매칭 검사 및 처리
-        findAndProcessMatches(candyBoard);
+    public boolean checkMatch(int row, int col, ImageView[][] candyBoard) {
+        Object targetTag = candyBoard[row][col].getTag();
+        if (targetTag == null) {
+            return false;
+        }
+
+        // 가로 방향 매칭 확인
+        int horizontalCount = 1;
+        for (int i = col - 1; i >= 0; i--) {
+            if (candyBoard[row][i].getTag() != null && candyBoard[row][i].getTag().equals(targetTag)) {
+                horizontalCount++;
+            } else {
+                break;
+            }
+        }
+        for (int i = col + 1; i < candyBoard[row].length; i++) {
+            if (candyBoard[row][i].getTag() != null && candyBoard[row][i].getTag().equals(targetTag)) {
+                horizontalCount++;
+            } else {
+                break;
+            }
+        }
+
+        // 세로 방향 매칭 확인
+        int verticalCount = 1;
+        for (int i = row - 1; i >= 0; i--) {
+            if (candyBoard[i][col].getTag() != null && candyBoard[i][col].getTag().equals(targetTag)) {
+                verticalCount++;
+            } else {
+                break;
+            }
+        }
+        for (int i = row + 1; i < candyBoard.length; i++) {
+            if (candyBoard[i][col].getTag() != null && candyBoard[i][col].getTag().equals(targetTag)) {
+                verticalCount++;
+            } else {
+                break;
+            }
+        }
+
+        return horizontalCount >= 3 || verticalCount >= 3;
+    }
+
+    public void resolveMatches(ImageView[][] candyBoard) {
+        boolean hasMatch;
+
+        do {
+            hasMatch = checkAndRemoveMatches(candyBoard);
+            if (hasMatch) {
+                applyGravity(candyBoard);
+            }
+        } while (hasMatch);
     }
 
     private boolean checkAndRemoveMatches(ImageView[][] candyBoard) {
@@ -55,51 +99,55 @@ public class CandyManager {
 
         // 가로 매칭 검사
         for (int row = 0; row < candyBoard.length; row++) {
-            int startCol = 0;
-            while (startCol < candyBoard[row].length) {
-                int matchCount = 1;
-                for (int col = startCol + 1; col < candyBoard[row].length; col++) {
-                    if (candyBoard[row][startCol].getTag() != null &&
-                            candyBoard[row][startCol].getTag().equals(candyBoard[row][col].getTag())) {
-                        matchCount++;
-                    } else {
-                        break;
+            int matchCount = 1;
+            for (int col = 1; col < candyBoard[row].length; col++) {
+                if (candyBoard[row][col].getTag() != null &&
+                        candyBoard[row][col].getTag().equals(candyBoard[row][col - 1].getTag())) {
+                    matchCount++;
+                } else {
+                    if (matchCount >= 3) {
+                        // 매칭된 좌표 저장
+                        for (int i = 0; i < matchCount; i++) {
+                            matches.add(new int[]{row, col - i - 1});
+                        }
+                        hasMatch = true;
                     }
+                    matchCount = 1; // 매칭 길이 초기화
                 }
-
-                if (matchCount >= 3) {
-                    for (int i = 0; i < matchCount; i++) {
-                        matches.add(new int[]{row, startCol + i});
-                    }
-                    hasMatch = true;
+            }
+            // 마지막 연속 매칭 확인
+            if (matchCount >= 3) {
+                for (int i = 0; i < matchCount; i++) {
+                    matches.add(new int[]{row, candyBoard[row].length - i - 1});
                 }
-
-                startCol += matchCount;
+                hasMatch = true;
             }
         }
 
         // 세로 매칭 검사
         for (int col = 0; col < candyBoard[0].length; col++) {
-            int startRow = 0;
-            while (startRow < candyBoard.length) {
-                int matchCount = 1;
-                for (int row = startRow + 1; row < candyBoard.length; row++) {
-                    if (candyBoard[startRow][col].getTag() != null &&
-                            candyBoard[startRow][col].getTag().equals(candyBoard[row][col].getTag())) {
-                        matchCount++;
-                    } else {
-                        break;
+            int matchCount = 1;
+            for (int row = 1; row < candyBoard.length; row++) {
+                if (candyBoard[row][col].getTag() != null &&
+                        candyBoard[row][col].getTag().equals(candyBoard[row - 1][col].getTag())) {
+                    matchCount++;
+                } else {
+                    if (matchCount >= 3) {
+                        // 매칭된 좌표 저장
+                        for (int i = 0; i < matchCount; i++) {
+                            matches.add(new int[]{row - i - 1, col});
+                        }
+                        hasMatch = true;
                     }
+                    matchCount = 1; // 매칭 길이 초기화
                 }
-
-                if (matchCount >= 3) {
-                    for (int i = 0; i < matchCount; i++) {
-                        matches.add(new int[]{startRow + i, col});
-                    }
-                    hasMatch = true;
+            }
+            // 마지막 연속 매칭 확인
+            if (matchCount >= 3) {
+                for (int i = 0; i < matchCount; i++) {
+                    matches.add(new int[]{candyBoard.length - i - 1, col});
                 }
-
-                startRow += matchCount;
+                hasMatch = true;
             }
         }
 
@@ -122,9 +170,9 @@ public class CandyManager {
     private void applyGravity(ImageView[][] candyBoard) {
         for (int col = 0; col < candyBoard[0].length; col++) {
             for (int row = candyBoard.length - 1; row > 0; row--) {
-                if (candyBoard[row][col].getTag() == null) { // 빈 공간이면
+                if (candyBoard[row][col].getTag() == null) {
                     for (int upperRow = row - 1; upperRow >= 0; upperRow--) {
-                        if (candyBoard[upperRow][col].getTag() != null) { // 위에 있는 캔디 찾기
+                        if (candyBoard[upperRow][col].getTag() != null) {
                             candyBoard[row][col].setImageDrawable(candyBoard[upperRow][col].getDrawable());
                             candyBoard[row][col].setTag(candyBoard[upperRow][col].getTag());
 
@@ -137,7 +185,6 @@ public class CandyManager {
             }
         }
 
-        // 최상단에 새로운 캔디 생성
         for (int col = 0; col < candyBoard[0].length; col++) {
             for (int row = 0; row < candyBoard.length; row++) {
                 if (candyBoard[row][col].getTag() == null) {
