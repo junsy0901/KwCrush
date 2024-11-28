@@ -1,85 +1,71 @@
 package com.cookandroid.candycrush.util;
 
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 
-import com.cookandroid.candycrush.util.CandyManager;
 import com.cookandroid.candycrush.view.PlayActivity;
 
-public class OnSwipeListener {
+public class OnSwipeListener implements View.OnTouchListener {
 
-    private GestureDetector gestureDetector;
-    private PlayActivity playActivity;
-    private int candyIndex;
+    private PlayActivity activity;
+    private ImageView candy;
+    private int row;
+    private int col;
     private CandyManager candyManager;
 
-    public OnSwipeListener(PlayActivity activity, View candyView, int index, CandyManager manager) {
-        this.playActivity = activity;
-        this.candyIndex = index;
-        this.candyManager = manager;
+    private float startX, startY; // 터치 시작 좌표
+    private final int SWIPE_THRESHOLD = 100; // 스와이프 최소 거리
 
-        gestureDetector = new GestureDetector(candyView.getContext(), new GestureListener());
-        candyView.setOnTouchListener((v, event) -> gestureDetector.onTouchEvent(event));
+    public OnSwipeListener(PlayActivity activity, ImageView candy, int row, int col, CandyManager candyManager) {
+        this.activity = activity;
+        this.candy = candy;
+        this.row = row;
+        this.col = col;
+        this.candyManager = candyManager;
     }
 
-    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                startX = event.getX(); // 터치 시작 X 좌표
+                startY = event.getY(); // 터치 시작 Y 좌표
+                return true;
 
-        @Override
-        public boolean onDown(MotionEvent e) {
-            return true;
+            case MotionEvent.ACTION_UP:
+                float endX = event.getX(); // 터치 종료 X 좌표
+                float endY = event.getY(); // 터치 종료 Y 좌표
+                handleSwipe(endX - startX, endY - startY); // 스와이프 처리
+                return true;
+
+            default:
+                return false;
         }
+    }
 
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            float xDiff = e2.getX() - e1.getX();
-            float yDiff = e2.getY() - e1.getY();
-
-            try {
-                if (Math.abs(xDiff) > Math.abs(yDiff)) {
-                    if (Math.abs(xDiff) > 50 && Math.abs(velocityX) > 50) {
-                        if (xDiff > 0) {
-                            onSwipeRight();
-                        } else {
-                            onSwipeLeft();
-                        }
-                    }
+    private void handleSwipe(float deltaX, float deltaY) {
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            // 가로 스와이프
+            if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
+                if (deltaX > 0) {
+                    // 오른쪽 스와이프
+                    candyManager.swapCandies(row, col, row, col + 1, activity.candyBoard);
                 } else {
-                    if (Math.abs(yDiff) > 50 && Math.abs(velocityY) > 50) {
-                        if (yDiff > 0) {
-                            onSwipeDown();
-                        } else {
-                            onSwipeUp();
-                        }
-                    }
+                    // 왼쪽 스와이프
+                    candyManager.swapCandies(row, col, row, col - 1, activity.candyBoard);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
-            return true;
-        }
-
-        private void onSwipeRight() {
-            if (candyIndex % playActivity.getNoOfBlock() < playActivity.getNoOfBlock() - 1) {
-                candyManager.swapCandies(candyIndex, candyIndex + 1, playActivity.candyList);
-            }
-        }
-
-        private void onSwipeLeft() {
-            if (candyIndex % playActivity.getNoOfBlock() > 0) {
-                candyManager.swapCandies(candyIndex, candyIndex - 1, playActivity.candyList);
-            }
-        }
-
-        private void onSwipeUp() {
-            if (candyIndex >= playActivity.getNoOfBlock()) {
-                candyManager.swapCandies(candyIndex, candyIndex - playActivity.getNoOfBlock(), playActivity.candyList);
-            }
-        }
-
-        private void onSwipeDown() {
-            if (candyIndex < playActivity.getNoOfBlock() * (playActivity.getNoOfBlock() - 1)) {
-                candyManager.swapCandies(candyIndex, candyIndex + playActivity.getNoOfBlock(), playActivity.candyList);
+        } else {
+            // 세로 스와이프
+            if (Math.abs(deltaY) > SWIPE_THRESHOLD) {
+                if (deltaY > 0) {
+                    // 아래쪽 스와이프
+                    candyManager.swapCandies(row, col, row + 1, col, activity.candyBoard);
+                } else {
+                    // 위쪽 스와이프
+                    candyManager.swapCandies(row, col, row - 1, col, activity.candyBoard);
+                }
             }
         }
     }
