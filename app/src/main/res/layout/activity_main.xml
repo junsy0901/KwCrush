@@ -6,17 +6,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center"
     android:layout_gravity="center"
     android:background="@drawable/main_page"
     tools:context=".view.PlayActivity">
 
     <ImageView
         android:id="@+id/playBtn"
+        android:layout_width="132dp"
+        android:layout_height="92dp"
         android:layout_gravity="center"
-        android:layout_marginTop="21dp"
-        android:src="@drawable/playbtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_marginTop="550dp"
+        android:src="@drawable/playbtn" />
 
 </LinearLayout>
