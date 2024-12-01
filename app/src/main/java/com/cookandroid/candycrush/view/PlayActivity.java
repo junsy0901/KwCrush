@@ -68,7 +68,7 @@ public class PlayActivity extends AppCompatActivity {
     }
 
     private void createBoard() {
-        movecount = 0;
+        movecount = 15;
         GridLayout board = findViewById(R.id.board);
         board.setRowCount(gridSize);
         board.setColumnCount(gridSize);
@@ -129,12 +129,14 @@ public class PlayActivity extends AppCompatActivity {
     }
 
     public void updateMoveCount() {
-        movecount++;
+        movecount--;
         countView.setText(String.valueOf(movecount));
-        if(movecount>=30){
+
+        if (movecount <= 0) {
             endGame();
         }
     }
+
 
     // 랜덤 캔디 리소스 반환
     public int getRandomCandyResource() {
