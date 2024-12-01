@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.cookandroid.candycrush.MainActivity;
 import com.cookandroid.candycrush.R;
 import com.cookandroid.candycrush.util.CandyManager;
 import com.cookandroid.candycrush.util.OnSwipeListener;
@@ -133,7 +134,7 @@ public class PlayActivity extends AppCompatActivity {
         countView.setText(String.valueOf(movecount));
 
         if (movecount <= 0) {
-            endGame();
+            endGame(1);
         }
     }
 
@@ -143,14 +144,37 @@ public class PlayActivity extends AppCompatActivity {
         return candyResources[random.nextInt(candyResources.length)];
     }
 
-    // 게임 종료 처리
-    public void endGame() {
+    public void endGame(int type) {
         Intent intent = new Intent(PlayActivity.this, ResultActivity.class);
         // 점수를 Intent에 담아 전달
         intent.putExtra("score", score);
+        intent.putExtra("gameEndType", type);
+
+        // 종료 타입에 따라 메시지 전달
+        switch (type) {
+            case -1: // 비정상 종료
+                intent.putExtra("message", "Game ended unexpectedly. Returning to main menu.");
+                startActivity(new Intent(PlayActivity.this, MainActivity.class));
+                finish();  // 현재 Activity 종료
+                return;    // MainActivity로 이동 후 메서드 종료
+
+            case 1: // 정상 종료 (이동 횟수 소진)
+                intent.putExtra("message", "Out of moves! Well played.");
+                break;
+
+            case 2: // 정상 종료 (더 이상 이동 불가)
+                intent.putExtra("message", "No possible moves left! Good job.");
+                break;
+
+            default: // 기본 메시지 (예외 처리)
+                intent.putExtra("message", "Game over. Thanks for playing!");
+                break;
+        }
+
         startActivity(intent);
         finish();  // 현재 Activity 종료
     }
+
 
 
     public int getNoOfBlock() {

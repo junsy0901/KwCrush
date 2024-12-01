@@ -1,6 +1,8 @@
 package com.cookandroid.candycrush.util;
 
 import android.widget.ImageView;
+import android.widget.Toast;
+
 import com.cookandroid.candycrush.view.PlayActivity;
 import java.util.ArrayList;
 
@@ -20,13 +22,18 @@ public class CandyManager {
         if (!matchFound) {
             // 매칭이 없으면 다시 스왑
             swapCandies(fromRow, fromCol, toRow, toCol, candyBoard);
+            Toast.makeText(activity, "매치안됨", Toast.LENGTH_SHORT).show();
         }
         else{
+            int num = 1;
             activity.updateMoveCount();
             while(matchFound){
                 matchFound = processMatches(candyBoard);
+                Toast.makeText(activity, num+"콤보!" , Toast.LENGTH_SHORT).show();
+                num++;
             }
         }
+        checkGameOver(candyBoard);
     }
 
     // 캔디 스와이프
@@ -60,11 +67,12 @@ public class CandyManager {
             int col = candyPos[1];
             candyBoard[row][col].setImageResource(0);
             candyBoard[row][col].setTag(0);
+
+            // 캔디가 떨어지게 하기
+            dropCandies(candyBoard);
+
             activity.updateScore(1);  // 점수 업데이트
         }
-
-        // 캔디가 떨어지게 하기
-        dropCandies(candyBoard);
 
         return matchFound;
     }
@@ -139,6 +147,62 @@ public class CandyManager {
             }
         }
     }
+    public void checkGameOver(ImageView[][] candyBoard) {
+        int rows = candyBoard.length;
+        int cols = candyBoard[0].length;
+
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                // 오른쪽으로 스와이프 가능 여부 확인
+                if (col + 1 < cols) {
+                    if (canSwapAndMatch(row, col, row, col + 1, candyBoard)) {
+                        return; // 변화 가능하면 메서드 종료
+                    }
+                }
+                // 아래로 스와이프 가능 여부 확인
+                if (row + 1 < rows) {
+                    if (canSwapAndMatch(row, col, row + 1, col, candyBoard)) {
+                        return; // 변화 가능하면 메서드 종료
+                    }
+                }
+            }
+        }
+
+        Toast.makeText(activity, "더 이상 움직일 수 없습니다!", Toast.LENGTH_SHORT).show();
+
+        // 모든 스와이프 가능성을 확인한 후에도 변화가 없으면 게임 종료
+        activity.endGame(2);
+    }
+
+    // 특정 스와이프가 매칭을 만드는지 확인하는 헬퍼 메서드
+    private boolean canSwapAndMatch(int fromRow, int fromCol, int toRow, int toCol, ImageView[][] candyBoard) {
+        // 보드 복사본 생성
+        ImageView[][] boardCopy = copyCandyBoard(candyBoard);
+
+        // 스와이프 시뮬레이션
+        swapCandies(fromRow, fromCol, toRow, toCol, boardCopy);
+
+        // 매칭 여부 확인
+        return checkMatch(fromRow, fromCol, boardCopy) || checkMatch(toRow, toCol, boardCopy);
+    }
+
+
+    // 보드 복사 메서드
+    private ImageView[][] copyCandyBoard(ImageView[][] originalBoard) {
+        int rows = originalBoard.length;
+        int cols = originalBoard[0].length;
+
+        ImageView[][] copy = new ImageView[rows][cols];
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                copy[row][col] = new ImageView(originalBoard[row][col].getContext());
+                copy[row][col].setTag(originalBoard[row][col].getTag());
+            }
+        }
+        return copy;
+    }
+
 
 
 }
+
