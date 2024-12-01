@@ -25,12 +25,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Score: "
-            android:textColor="#FFFFFF"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Score: "
+                android:textColor="#FFFFFF"
+                android:textSize="24sp"
+                android:fontFamily="@font/maplestory_bold"
+                android:textStyle="bold"
+                android:shadowColor="#80000000"
+                android:shadowDx="3"
+                android:shadowDy="2"
+                android:shadowRadius="4"/>
 
             <TextView
                 android:id="@+id/score"
@@ -39,7 +44,12 @@
                 android:text="0"
                 android:textColor="#FFFFFF"
                 android:textSize="24sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:fontFamily="@font/maplestory_bold"
+                android:shadowColor="#80000000"
+                android:shadowDx="3"
+                android:shadowDy="2"
+                android:shadowRadius="4"/>
         </LinearLayout>
 
         <LinearLayout
@@ -51,7 +61,12 @@
                 android:text="MoveCount: "
                 android:textColor="#FFFFFF"
                 android:textSize="24sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:fontFamily="@font/maplestory_bold"
+                android:shadowColor="#80000000"
+                android:shadowDx="3"
+                android:shadowDy="2"
+                android:shadowRadius="4"/>
 
             <TextView
                 android:id="@+id/movecount"
@@ -60,7 +75,13 @@
                 android:text="0"
                 android:textColor="#FFFFFF"
                 android:textSize="24sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:fontFamily="@font/maplestory_bold"
+                android:shadowColor="#80000000"
+                android:shadowDx="3"
+                android:shadowDy="2"
+                android:shadowRadius="4"
+            />
         </LinearLayout>
 
     </LinearLayout>

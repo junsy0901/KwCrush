@@ -31,17 +31,14 @@ public class ResultActivity extends AppCompatActivity {
         int score = getIntent().getIntExtra("score", 0);
         int gameEndType = getIntent().getIntExtra("gameEndType", 0); // 종료 타입 받기
 
-        // 점수 텍스트 설정
-        scoreTextView.setText("Your Score: " + score);
-
         // 종료 타입에 따른 상태 메시지 설정
         String endMessage = "";
         switch (gameEndType) {
             case 1:
-                endMessage = "Game Over. No moves left.";
+                endMessage = "Game Over\nNo moves left.";
                 break;
             case 2:
-                endMessage = "Game Over. No possible swaps.";
+                endMessage = "Game Over\nNo possible swaps.";
                 break;
             default:
                 endMessage = "Game ended unexpectedly.";
