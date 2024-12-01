@@ -48,13 +48,12 @@ public class PlayActivity extends AppCompatActivity {
         GridLayout board = findViewById(R.id.board);
         adjustBoardSize(board);
 
-        // 초기 매칭 검사 및 점수 처리
-        candyManager.findAndProcessMatches(candyBoard);
+        // 스와이프 리스너 설정
+        setSwipeListener();
     }
 
     private void adjustBoardSize(GridLayout board) {
         int screenWidth = getResources().getDisplayMetrics().widthPixels;
-
         int screenHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.7);
         int candySize = Math.min(screenWidth, screenHeight) / gridSize;
 
@@ -96,23 +95,46 @@ public class PlayActivity extends AppCompatActivity {
                 // 캔디 보드에 추가
                 candyBoard[row][col] = candy;
                 board.addView(candy);
+            }
+        }
+        setSwipeListener();
+        boolean matchFound = true;
+        while(matchFound){
+            matchFound = candyManager.processMatches(candyBoard);
+        }
+    }
 
-                // 스와이프 이벤트 연결
-                candy.setOnTouchListener(new OnSwipeListener(this, candy, row, col, candyManager));
+    // 스와이프 리스너 설정
+    private void setSwipeListener() {
+        // 각 캔디에 대해 개별적으로 OnSwipeListener를 설정
+        for (int row = 0; row < gridSize; row++) {
+            for (int col = 0; col < gridSize; col++) {
+                ImageView candy = candyBoard[row][col];
+                // 각 캔디에 대해 OnSwipeListener를 생성하고, 해당 캔디의 위치를 전달
+                candy.setOnTouchListener(new OnSwipeListener(this, row, col, candyManager));
             }
         }
     }
 
-    public int getNoOfBlock() {
-        return gridSize;
-    }
 
+    // 점수 업데이트
     public void updateScore(int points) {
         score += points;
         scoreView.setText(String.valueOf(score));
     }
 
+    // 랜덤 캔디 리소스 반환
     public int getRandomCandyResource() {
         return candyResources[random.nextInt(candyResources.length)];
+    }
+
+    // 게임 종료 처리
+    public void endGame() {
+        // 게임 종료 로직 추가
+        // 예: 게임 종료 화면, 리셋, 점수 저장 등
+    }
+
+    public int getNoOfBlock() {
+        return gridSize;
     }
 }

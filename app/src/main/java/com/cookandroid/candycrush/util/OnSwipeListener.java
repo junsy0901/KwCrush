@@ -1,16 +1,13 @@
 package com.cookandroid.candycrush.util;
 
-import android.graphics.drawable.Drawable;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageView;
 
 import com.cookandroid.candycrush.view.PlayActivity;
 
 public class OnSwipeListener implements View.OnTouchListener {
 
     private PlayActivity activity;
-    private ImageView candy;
     private int row;
     private int col;
     private CandyManager candyManager;
@@ -18,9 +15,8 @@ public class OnSwipeListener implements View.OnTouchListener {
     private float startX, startY; // 터치 시작 좌표
     private final int SWIPE_THRESHOLD = 100; // 스와이프 최소 거리
 
-    public OnSwipeListener(PlayActivity activity, ImageView candy, int row, int col, CandyManager candyManager) {
+    public OnSwipeListener(PlayActivity activity, int row, int col, CandyManager candyManager) {
         this.activity = activity;
-        this.candy = candy;
         this.row = row;
         this.col = col;
         this.candyManager = candyManager;
@@ -51,25 +47,19 @@ public class OnSwipeListener implements View.OnTouchListener {
 
         // 스와이프 방향에 따른 새로운 위치 계산
         if (Math.abs(deltaX) > Math.abs(deltaY)) {
-            // 가로 스와이프
             if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
                 if (deltaX > 0) {
-                    // 오른쪽 스와이프
-                    newCol = col + 1;
+                    newCol = col + 1; // 오른쪽
                 } else {
-                    // 왼쪽 스와이프
-                    newCol = col - 1;
+                    newCol = col - 1; // 왼쪽
                 }
             }
         } else {
-            // 세로 스와이프
             if (Math.abs(deltaY) > SWIPE_THRESHOLD) {
                 if (deltaY > 0) {
-                    // 아래쪽 스와이프
-                    newRow = row + 1;
+                    newRow = row + 1; // 아래
                 } else {
-                    // 위쪽 스와이프
-                    newRow = row - 1;
+                    newRow = row - 1; // 위
                 }
             }
         }
@@ -80,28 +70,7 @@ public class OnSwipeListener implements View.OnTouchListener {
             return;
         }
 
-        // 캔디 상태 저장
-        Object originalTag1 = activity.candyBoard[row][col].getTag();
-        Object originalTag2 = activity.candyBoard[newRow][newCol].getTag();
-        Drawable originalDrawable1 = activity.candyBoard[row][col].getDrawable();
-        Drawable originalDrawable2 = activity.candyBoard[newRow][newCol].getDrawable();
-
-        // 캔디 스왑
-        candyManager.swapCandies(row, col, newRow, newCol, activity.candyBoard);
-
-        // 매칭 여부 확인
-        boolean isMatched = candyManager.checkMatch(newRow, newCol, activity.candyBoard) ||
-                candyManager.checkMatch(row, col, activity.candyBoard);
-
-        if (!isMatched) {
-            // 매칭되지 않으면 원래 상태로 복구
-            activity.candyBoard[row][col].setTag(originalTag1);
-            activity.candyBoard[row][col].setImageDrawable(originalDrawable1);
-            activity.candyBoard[newRow][newCol].setTag(originalTag2);
-            activity.candyBoard[newRow][newCol].setImageDrawable(originalDrawable2);
-        } else {
-            // 매칭된 경우 처리
-            candyManager.resolveMatches(activity.candyBoard);
-        }
+        // 캔디 스왑을 CandyManager로 처리하고, 매칭을 확인
+        candyManager.swapAndCheckMatch(row, col, newRow, newCol, activity.candyBoard);
     }
 }

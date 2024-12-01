@@ -1,198 +1,142 @@
 package com.cookandroid.candycrush.util;
 
 import android.widget.ImageView;
-
 import com.cookandroid.candycrush.view.PlayActivity;
-
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
 
 public class CandyManager {
 
-    private PlayActivity playActivity;
+    private PlayActivity activity;
+    private ArrayList<int[]> matchedCandies = new ArrayList<>();
 
-    public CandyManager(PlayActivity playActivity) {
-        this.playActivity = playActivity;
+    public CandyManager(PlayActivity activity) {
+        this.activity = activity;
     }
 
-    public void findAndProcessMatches(ImageView[][] candyBoard) {
-        resolveMatches(candyBoard);
+    // 두 캔디 스왑 후 매칭 여부 확인
+    public void swapAndCheckMatch(int fromRow, int fromCol, int toRow, int toCol, ImageView[][] candyBoard) {
+        swapCandies(fromRow, fromCol, toRow, toCol, candyBoard);
+        boolean matchFound = processMatches(candyBoard);
+        if (!matchFound) {
+            // 매칭이 없으면 다시 스왑
+            swapCandies(fromRow, fromCol, toRow, toCol, candyBoard);
+        }
+        else{
+            while(matchFound){
+                matchFound = processMatches(candyBoard);
+            }
+        }
     }
 
-    public void swapCandies(int row1, int col1, int row2, int col2, ImageView[][] candyBoard) {
-        // 범위를 벗어난 경우 무시
-        if (row2 < 0 || col2 < 0 || row2 >= candyBoard.length || col2 >= candyBoard[0].length) {
-            return;
-        }
+    // 캔디 스와이프
+    public void swapCandies(int fromRow, int fromCol, int toRow, int toCol, ImageView[][] candyBoard) {
+        int tempCandy = (int) candyBoard[fromRow][fromCol].getTag();
+        candyBoard[fromRow][fromCol].setTag(candyBoard[toRow][toCol].getTag());
+        candyBoard[toRow][toCol].setTag(tempCandy);
 
-        // 캔디 교환
-        ImageView candy1 = candyBoard[row1][col1];
-        ImageView candy2 = candyBoard[row2][col2];
-
-        Object tag1 = candy1.getTag();
-        Object tag2 = candy2.getTag();
-
-        candy1.setImageDrawable(candy2.getDrawable());
-        candy1.setTag(tag2);
-
-        candy2.setImageDrawable(candy1.getDrawable());
-        candy2.setTag(tag1);
+        candyBoard[fromRow][fromCol].setImageResource((int) candyBoard[fromRow][fromCol].getTag());
+        candyBoard[toRow][toCol].setImageResource((int) candyBoard[toRow][toCol].getTag());
     }
 
-    public boolean checkMatch(int row, int col, ImageView[][] candyBoard) {
-        Object targetTag = candyBoard[row][col].getTag();
-        if (targetTag == null) {
-            return false;
-        }
+    // 매칭된 캔디들 처리
+    public boolean processMatches(ImageView[][] candyBoard) {
+        matchedCandies = new ArrayList<>();
+        boolean matchFound = false;
 
-        // 가로 방향 매칭 확인
-        int horizontalCount = 1;
-        for (int i = col - 1; i >= 0; i--) {
-            if (candyBoard[row][i].getTag() != null && candyBoard[row][i].getTag().equals(targetTag)) {
-                horizontalCount++;
-            } else {
-                break;
-            }
-        }
-        for (int i = col + 1; i < candyBoard[row].length; i++) {
-            if (candyBoard[row][i].getTag() != null && candyBoard[row][i].getTag().equals(targetTag)) {
-                horizontalCount++;
-            } else {
-                break;
-            }
-        }
-
-        // 세로 방향 매칭 확인
-        int verticalCount = 1;
-        for (int i = row - 1; i >= 0; i--) {
-            if (candyBoard[i][col].getTag() != null && candyBoard[i][col].getTag().equals(targetTag)) {
-                verticalCount++;
-            } else {
-                break;
-            }
-        }
-        for (int i = row + 1; i < candyBoard.length; i++) {
-            if (candyBoard[i][col].getTag() != null && candyBoard[i][col].getTag().equals(targetTag)) {
-                verticalCount++;
-            } else {
-                break;
-            }
-        }
-
-        return horizontalCount >= 3 || verticalCount >= 3;
-    }
-
-    public void resolveMatches(ImageView[][] candyBoard) {
-        boolean hasMatch;
-
-        do {
-            hasMatch = checkAndRemoveMatches(candyBoard);
-            if (hasMatch) {
-                applyGravity(candyBoard);
-            }
-        } while (hasMatch);
-    }
-
-    private boolean checkAndRemoveMatches(ImageView[][] candyBoard) {
-        Set<int[]> matches = new HashSet<>();
-        boolean hasMatch = false;
-
-        // 가로 매칭 검사
+        // 가로, 세로 매칭 확인
         for (int row = 0; row < candyBoard.length; row++) {
-            int matchCount = 1;
-            for (int col = 1; col < candyBoard[row].length; col++) {
-                if (candyBoard[row][col].getTag() != null &&
-                        candyBoard[row][col].getTag().equals(candyBoard[row][col - 1].getTag())) {
-                    matchCount++;
-                } else {
-                    if (matchCount >= 3) {
-                        // 매칭된 좌표 저장
-                        for (int i = 0; i < matchCount; i++) {
-                            matches.add(new int[]{row, col - i - 1});
-                        }
-                        hasMatch = true;
-                    }
-                    matchCount = 1; // 매칭 길이 초기화
+            for (int col = 0; col < candyBoard[row].length; col++) {
+                if (checkMatch(row, col, candyBoard)) {
+                    matchedCandies.add(new int[]{row, col});
+                    matchFound = true;
                 }
-            }
-            // 마지막 연속 매칭 확인
-            if (matchCount >= 3) {
-                for (int i = 0; i < matchCount; i++) {
-                    matches.add(new int[]{row, candyBoard[row].length - i - 1});
-                }
-                hasMatch = true;
             }
         }
 
-        // 세로 매칭 검사
-        for (int col = 0; col < candyBoard[0].length; col++) {
-            int matchCount = 1;
-            for (int row = 1; row < candyBoard.length; row++) {
-                if (candyBoard[row][col].getTag() != null &&
-                        candyBoard[row][col].getTag().equals(candyBoard[row - 1][col].getTag())) {
-                    matchCount++;
-                } else {
-                    if (matchCount >= 3) {
-                        // 매칭된 좌표 저장
-                        for (int i = 0; i < matchCount; i++) {
-                            matches.add(new int[]{row - i - 1, col});
-                        }
-                        hasMatch = true;
-                    }
-                    matchCount = 1; // 매칭 길이 초기화
-                }
-            }
-            // 마지막 연속 매칭 확인
-            if (matchCount >= 3) {
-                for (int i = 0; i < matchCount; i++) {
-                    matches.add(new int[]{candyBoard.length - i - 1, col});
-                }
-                hasMatch = true;
-            }
+        // 매칭된 캔디들 삭제하고 점수 업데이트
+        for (int[] candyPos : matchedCandies) {
+            int row = candyPos[0];
+            int col = candyPos[1];
+            candyBoard[row][col].setImageResource(0);
+            candyBoard[row][col].setTag(0);
+            activity.updateScore(1);  // 점수 업데이트
         }
 
-        // 매칭된 캔디 제거
-        if (!matches.isEmpty()) {
-            for (int[] match : matches) {
-                int row = match[0];
-                int col = match[1];
-                candyBoard[row][col].setImageResource(android.R.color.transparent);
-                candyBoard[row][col].setTag(null); // 빈 공간 처리
-            }
+        // 캔디가 떨어지게 하기
+        dropCandies(candyBoard);
 
-            // 점수 추가
-            playActivity.updateScore(matches.size() * 10); // 매칭된 캔디 개수에 비례하여 점수 추가
-        }
-
-        return hasMatch;
+        return matchFound;
     }
 
-    private void applyGravity(ImageView[][] candyBoard) {
-        for (int col = 0; col < candyBoard[0].length; col++) {
-            for (int row = candyBoard.length - 1; row > 0; row--) {
-                if (candyBoard[row][col].getTag() == null) {
-                    for (int upperRow = row - 1; upperRow >= 0; upperRow--) {
-                        if (candyBoard[upperRow][col].getTag() != null) {
-                            candyBoard[row][col].setImageDrawable(candyBoard[upperRow][col].getDrawable());
-                            candyBoard[row][col].setTag(candyBoard[upperRow][col].getTag());
+    // 캔디 매칭 여부 확인 (가로, 세로)
+    private boolean checkMatch(int row, int col, ImageView[][] candyBoard) {
+        return (checkHorizontalMatch(row, col, candyBoard) || checkVerticalMatch(row, col, candyBoard));
+    }
 
-                            candyBoard[upperRow][col].setImageResource(android.R.color.transparent);
-                            candyBoard[upperRow][col].setTag(null);
-                            break;
-                        }
-                    }
-                }
-            }
+    // 가로 매칭 확인
+    private boolean checkHorizontalMatch(int row, int col, ImageView[][] candyBoard) {
+        int matchCount = 1;
+        int candyType = (int) candyBoard[row][col].getTag();
+        int left = col - 1;
+        while (left >= 0 && (int) candyBoard[row][left].getTag() == candyType) {
+            matchCount++;
+            left--;
         }
 
+        int right = col + 1;
+        while (right < candyBoard[row].length && (int) candyBoard[row][right].getTag() == candyType) {
+            matchCount++;
+            right++;
+        }
+
+        return matchCount >= 3;
+    }
+
+    // 세로 매칭 확인
+    private boolean checkVerticalMatch(int row, int col, ImageView[][] candyBoard) {
+        int matchCount = 1;
+        int candyType = (int) candyBoard[row][col].getTag();
+        int up = row - 1;
+        while (up >= 0 && (int) candyBoard[up][col].getTag() == candyType) {
+            matchCount++;
+            up--;
+        }
+
+        int down = row + 1;
+        while (down < candyBoard.length && (int) candyBoard[down][col].getTag() == candyType) {
+            matchCount++;
+            down++;
+        }
+
+        return matchCount >= 3;
+    }
+
+    // 캔디 떨어지기 (빈칸 메꾸기)
+    public void dropCandies(ImageView[][] candyBoard) {
+        // 각 열에 대해 빈 칸을 채우는 로직
         for (int col = 0; col < candyBoard[0].length; col++) {
-            for (int row = 0; row < candyBoard.length; row++) {
-                if (candyBoard[row][col].getTag() == null) {
-                    int randomCandy = playActivity.getRandomCandyResource();
-                    candyBoard[row][col].setImageResource(randomCandy);
-                    candyBoard[row][col].setTag(randomCandy);
+            // 열에서 아래로부터 위로 스캔하여 빈칸을 찾음
+            for (int row = candyBoard.length - 1; row >= 0; row--) {
+                // 빈 칸이면
+                if ((int) candyBoard[row][col].getTag() == 0) { // 또는 getTag() == null
+                    // 위에 있는 캔디를 아래로 내려오는 로직
+                    for (int aboveRow = row - 1; aboveRow >= 0; aboveRow--) {
+                        if ((int) candyBoard[aboveRow][col].getTag() != 0) { // 빈칸이 아닌 캔디를 찾음
+                            // 위에 있는 캔디를 현재 빈칸으로 이동
+                            swapCandies(aboveRow, col, row, col, candyBoard);
+                            break; // 한 번만 내려오므로 break
+                        }
+                    }
+
+                    // 만약 위에서 내려오는 캔디가 없다면, 새로운 캔디를 생성
+                    if ((int) candyBoard[0][col].getTag() == 0) {
+                        int randomCandyResource = activity.getRandomCandyResource();
+                        candyBoard[0][col].setImageResource(randomCandyResource);
+                        candyBoard[0][col].setTag(randomCandyResource);
+                    }
                 }
             }
         }
     }
+
 }
