@@ -27,6 +27,9 @@
         <activity
             android:name=".MainActivity"
             android:exported="true" />
+        <activity
+            android:name=".view.ResultActivity"
+            android:exported="true" />
     </application>
 
 </manifest>

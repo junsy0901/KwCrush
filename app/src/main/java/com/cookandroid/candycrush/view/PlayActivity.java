@@ -1,5 +1,6 @@
 package com.cookandroid.candycrush.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.ViewGroup;
@@ -20,7 +21,9 @@ public class PlayActivity extends AppCompatActivity {
     public ImageView[][] candyBoard;
     private int gridSize = 7; // 보드 크기
     private int score = 0; // 점수
+    private int movecount;
     private TextView scoreView;
+    private TextView countView;
     private Random random = new Random();
 
     private int[] candyResources = {
@@ -40,6 +43,7 @@ public class PlayActivity extends AppCompatActivity {
         setContentView(R.layout.activity_play);
 
         scoreView = findViewById(R.id.score);
+        countView = findViewById(R.id.movecount);
         candyBoard = new ImageView[gridSize][gridSize];
         candyManager = new CandyManager(this);
 
@@ -64,6 +68,7 @@ public class PlayActivity extends AppCompatActivity {
     }
 
     private void createBoard() {
+        movecount = 0;
         GridLayout board = findViewById(R.id.board);
         board.setRowCount(gridSize);
         board.setColumnCount(gridSize);
@@ -123,6 +128,14 @@ public class PlayActivity extends AppCompatActivity {
         scoreView.setText(String.valueOf(score));
     }
 
+    public void updateMoveCount() {
+        movecount++;
+        countView.setText(String.valueOf(movecount));
+        if(movecount>=30){
+            endGame();
+        }
+    }
+
     // 랜덤 캔디 리소스 반환
     public int getRandomCandyResource() {
         return candyResources[random.nextInt(candyResources.length)];
@@ -130,11 +143,17 @@ public class PlayActivity extends AppCompatActivity {
 
     // 게임 종료 처리
     public void endGame() {
-        // 게임 종료 로직 추가
-        // 예: 게임 종료 화면, 리셋, 점수 저장 등
+        Intent intent = new Intent(PlayActivity.this, ResultActivity.class);
+        // 점수를 Intent에 담아 전달
+        intent.putExtra("score", score);
+        startActivity(intent);
+        finish();  // 현재 Activity 종료
     }
+
 
     public int getNoOfBlock() {
         return gridSize;
     }
+
+
 }

@@ -22,6 +22,7 @@ public class CandyManager {
             swapCandies(fromRow, fromCol, toRow, toCol, candyBoard);
         }
         else{
+            activity.updateMoveCount();
             while(matchFound){
                 matchFound = processMatches(candyBoard);
             }
@@ -138,5 +139,6 @@ public class CandyManager {
             }
         }
     }
+
 
 }
