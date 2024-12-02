@@ -14,16 +14,14 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="320dp"
         android:gravity="center"
-
         android:text="Game Over"
-        android:textColor="@android:color/black"
+        android:textColor="@color/white"
         android:textSize="50sp"
         android:fontFamily="@font/maplestory_bold"
         android:shadowColor="#80000000"
         android:shadowDx="10"
         android:shadowDy="10"
-        android:shadowRadius="4"
-
+        android:shadowRadius="7"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -34,21 +32,19 @@
         android:id="@+id/scoreTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="8dp"
+        android:layout_marginTop="16dp"
         android:text="Current Score: 0"
         android:textSize="25sp"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:gravity="center"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="450dp"
-
         android:fontFamily="@font/maplestory_bold"
         android:shadowColor="#80000000"
         android:shadowDx="5"
         android:shadowDy="5"
-        android:shadowRadius="4"/>
+        android:shadowRadius="7"
+        app:layout_constraintTop_toBottomOf="@id/endGameStatus"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- 상위 점수 -->
     <GridLayout
@@ -56,17 +52,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:columnCount="2"
-        android:padding="8dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintTop_toBottomOf="@id/scoreTextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"
-
         android:fontFamily="@font/maplestory_bold"
         android:shadowColor="#80000000"
         android:shadowDx="5"
         android:shadowDy="5"
-        android:shadowRadius="4"/>
+        android:shadowRadius="4" />
 
     <!-- 홈 버튼 -->
     <Button
@@ -74,15 +68,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Home"
-        app:layout_constraintTop_toBottomOf="@id/topScores"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="100dp"
-
         android:fontFamily="@font/maplestory_bold"
         android:shadowColor="#80000000"
         android:shadowDx="5"
         android:shadowDy="5"
-        android:shadowRadius="4"/>
+        android:shadowRadius="4"
+        app:layout_constraintTop_toBottomOf="@id/topScores"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

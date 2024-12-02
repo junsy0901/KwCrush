@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class CandyManager {
 
-    private PlayActivity activity;
+    private final PlayActivity activity;
     private ArrayList<int[]> matchedCandies = new ArrayList<>();
 
     public CandyManager(PlayActivity activity) {
@@ -18,6 +18,7 @@ public class CandyManager {
     // 두 캔디 스왑 후 매칭 여부 확인
     public void swapAndCheckMatch(int fromRow, int fromCol, int toRow, int toCol, ImageView[][] candyBoard) {
         swapCandies(fromRow, fromCol, toRow, toCol, candyBoard);
+
         boolean matchFound = processMatches(candyBoard);
         if (!matchFound) {
             // 매칭이 없으면 다시 스왑
@@ -25,12 +26,14 @@ public class CandyManager {
             Toast.makeText(activity, "매치안됨", Toast.LENGTH_SHORT).show();
         }
         else{
-            int num = 1;
+            int totalCombos = 0;
             activity.updateMoveCount();
             while(matchFound){
+                totalCombos++;
                 matchFound = processMatches(candyBoard);
-                Toast.makeText(activity, num+"콤보!" , Toast.LENGTH_SHORT).show();
-                num++;
+            }
+            if (totalCombos > 0){
+                Toast.makeText(activity, totalCombos+"콤보!" , Toast.LENGTH_SHORT).show();
             }
         }
         checkGameOver(candyBoard);
@@ -201,8 +204,4 @@ public class CandyManager {
         }
         return copy;
     }
-
-
-
 }
-

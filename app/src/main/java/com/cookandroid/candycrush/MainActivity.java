@@ -8,6 +8,7 @@ import android.widget.ImageView; // ImageView로 원래대로
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.cookandroid.candycrush.R;
+import com.cookandroid.candycrush.util.SQLiteHelper;
 import com.cookandroid.candycrush.view.PlayActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -17,9 +18,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main); // activity_main.xml 사용
+        setContentView(R.layout.activity_main);
 
-        playButton = findViewById(R.id.playBtn); // ID에 맞게 수정
+        //SQLiteHelper dbHelper = new SQLiteHelper(this);
+        //dbHelper.clearDatabase();
+
+        playButton = findViewById(R.id.playBtn);
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
