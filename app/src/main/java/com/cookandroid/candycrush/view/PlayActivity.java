@@ -52,9 +52,6 @@ public class PlayActivity extends AppCompatActivity {
 
         GridLayout board = findViewById(R.id.board);
         adjustBoardSize(board);
-
-        // 스와이프 리스너 설정
-        setSwipeListener();
     }
 
     private void adjustBoardSize(GridLayout board) {
