@@ -72,7 +72,9 @@ public class OnSwipeListener implements View.OnTouchListener {
                 newCol < 0 || newCol >= activity.candyBoard[0].length) {
             return;
         }
+
         playSound(activity.getApplicationContext(), R.raw.swipe);
+
         // 캔디 스왑을 CandyManager로 처리하고, 매칭을 확인
         candyManager.swapAndCheckMatch(row, col, newRow, newCol, activity.candyBoard);
     }
