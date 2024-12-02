@@ -1,8 +1,11 @@
 package com.cookandroid.candycrush.util;
 
+import android.content.Context;
+import android.media.MediaPlayer;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.cookandroid.candycrush.R;
 import com.cookandroid.candycrush.view.PlayActivity;
 
 public class OnSwipeListener implements View.OnTouchListener {
@@ -69,8 +72,19 @@ public class OnSwipeListener implements View.OnTouchListener {
                 newCol < 0 || newCol >= activity.candyBoard[0].length) {
             return;
         }
-
+        playSound(activity.getApplicationContext(), R.raw.swipe);
         // 캔디 스왑을 CandyManager로 처리하고, 매칭을 확인
         candyManager.swapAndCheckMatch(row, col, newRow, newCol, activity.candyBoard);
+    }
+
+    // 효과음 재생 메서드
+    private void playSound(Context context, int soundResourceId) {
+        MediaPlayer mediaPlayer = MediaPlayer.create(context, soundResourceId);
+        mediaPlayer.start();
+
+        // 재생이 끝나면 리소스를 해제
+        mediaPlayer.setOnCompletionListener(mp -> {
+            mp.release();
+        });
     }
 }
